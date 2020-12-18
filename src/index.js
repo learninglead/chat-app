@@ -36,6 +36,32 @@ io.on('connection', (socket) => {
         callback();
     });
 
+    socket.on('isTyping',(callback) => {
+        const user = getUser(socket.id);
+        if(user)
+        {
+            user.isTyping = true;
+            socket.broadcast.to(user.room).emit('roomData', {
+                room: user.room,
+                users: getUsersInRoom(user.room)
+            });
+        }
+    })
+
+    socket.on('notTyping',(callback) => {
+        const user = getUser(socket.id);
+        if(user)
+        {
+            user.isTyping = false;
+            socket.broadcast.to(user.room).emit('roomData', {
+                room: user.room,
+                users: getUsersInRoom(user.room)
+            });
+        }
+    })
+
+
+
     socket.on('messageSend', (message, callback) => {
         const user = getUser(socket.id);
         if(user){
@@ -43,6 +69,11 @@ io.on('connection', (socket) => {
             if(filter.isProfane(message)){
                 return callback("Profanity is not allowed!");
             }
+            user.isTyping = false;
+            socket.broadcast.to(user.room).emit('roomData', {
+                room: user.room,
+                users: getUsersInRoom(user.room)
+            });
             io.to(user.room).emit('message', generateMessage(user.username, message));
         }
         

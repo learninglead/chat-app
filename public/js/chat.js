@@ -107,3 +107,12 @@ socket.emit('join', { username, room }, (error) => {
     }
 });
 
+$messageFormInput.addEventListener('input',() => {
+    if($messageFormInput.value){
+        socket.emit('isTyping');
+        console.log($messageFormInput.value)
+    } else {
+        socket.emit('notTyping');
+    }
+    
+})
